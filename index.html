@@ -1,119 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4f6f8">
 <title>禁煙NISA</title>
-
 <style>
-body {
-  font-family: -apple-system, sans-serif;
-  background: #f4f6f8;
-  text-align: center;
-  padding: 30px 15px;
-  color: #222;
-}
-
-.card {
-  background: white;
-  border-radius: 20px;
-  padding: 30px 15px;
-  max-width: 400px;
-  margin: auto;
-  box-shadow: 0 4px 15px #0001;
-}
-
-h1 { font-size: 26px; }
-
-.number {
-  font-size: 65px;
-  font-weight: bold;
-  margin: 15px 0;
-}
-
-.money {
-  font-size: 35px;
-  color: #16834a;
-  font-weight: bold;
-}
-
-button {
-  width: 100%;
-  padding: 20px;
-  margin-top: 15px;
-  font-size: 20px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-.smoke {
-  background: #222;
-  color: white;
-}
-
-.undo {
-  background: #ddd;
-}
+*{box-sizing:border-box}body{margin:0;padding:30px 15px;background:#f4f6f8;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;text-align:center}.card{background:white;border-radius:20px;padding:26px 15px;max-width:400px;margin:auto;box-shadow:0 4px 15px #0001}h1{font-size:26px;margin:0 0 20px}.number{font-size:65px;font-weight:700;margin:10px 0}.money{font-size:35px;color:#16834a;font-weight:700;margin:10px 0 16px}button{width:100%;padding:19px;margin-top:14px;font-size:19px;border:0;border-radius:12px;cursor:pointer}.smoke{background:#222;color:#fff}.undo{background:#ddd}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.stat{background:#f4f6f8;border-radius:12px;padding:12px 5px}.stat strong{display:block;font-size:27px;margin-top:4px}.muted{font-size:13px;color:#666}.history{text-align:left;margin-top:24px}.history h2{font-size:17px}.history-row{display:flex;justify-content:space-between;padding:11px 4px;border-bottom:1px solid #eee;font-size:15px}.note{font-size:12px;color:#777;line-height:1.6;margin-top:15px}
 </style>
 </head>
-
 <body>
-
-<div class="card">
-
+<main class="card">
 <h1>🚬 禁煙NISA 📈</h1>
-
-<p>今月の残り本数</p>
-<div class="number" id="remaining">900</div>
-
-<p>NISA積立予定額</p>
-<div class="money" id="money">27,000円</div>
-
-<button class="smoke" onclick="smoke()">
-吸う前にタップ −1本
-</button>
-
-<button class="undo" onclick="undo()">
-↩ 1本取り消し
-</button>
-
-</div>
-
+<p>今月の残り本数</p><div class="number" id="remaining">900</div>
+<p>NISA積立予定額</p><div class="money" id="money">27,000円</div>
+<div class="stats"><div class="stat"><span class="muted">今日の本数</span><strong id="today">0本</strong></div><div class="stat"><span class="muted">昨日の本数</span><strong id="yesterday">0本</strong></div></div>
+<button class="smoke" id="smoke">吸う前にタップ −1本</button>
+<button class="undo" id="undo">↩ 1本取り消し</button>
+<section class="history"><h2>📅 日別履歴</h2><div id="history"></div></section>
+<p class="note">履歴はこの端末内に保存されます。端末データを消すと失われる場合があります。</p>
+</main>
 <script>
-const MAX = 900;
-const PRICE = 30;
-
-let remaining = Number(localStorage.getItem("remaining"));
-
-if (localStorage.getItem("remaining") === null) {
-  remaining = MAX;
-}
-
-function update() {
-  document.getElementById("remaining").textContent = remaining;
-  document.getElementById("money").textContent =
-    (remaining * PRICE).toLocaleString() + "円";
-
-  localStorage.setItem("remaining", remaining);
-}
-
-function smoke() {
-  if (remaining > 0) {
-    remaining--;
-    update();
-  }
-}
-
-function undo() {
-  if (remaining < MAX) {
-    remaining++;
-    update();
-  }
-}
-
-update();
+const MAX=900,PRICE=30;
+const KEY='kinen-nisa-v2';
+const legacy=localStorage.getItem('remaining');
+const localDay=(date=new Date())=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+const monthKey=(date=new Date())=>localDay(date).slice(0,7);
+let data;
+try{data=JSON.parse(localStorage.getItem(KEY));}catch(e){data=null;}
+if(!data||typeof data!=='object'||!data.days){data={month:monthKey(),remaining:legacy===null?MAX:Math.max(0,Math.min(MAX,Number(legacy)||0)),days:{},lastAction:null};}
+function rollover(){const current=monthKey();if(data.month!==current){data.month=current;data.remaining=MAX;data.lastAction=null;}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem('remaining',String(data.remaining));}
+function display(){rollover();const today=localDay();const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);document.getElementById('remaining').textContent=data.remaining;document.getElementById('money').textContent=(data.remaining*PRICE).toLocaleString('ja-JP')+'円';document.getElementById('today').textContent=(data.days[today]||0)+'本';document.getElementById('yesterday').textContent=(data.days[localDay(yesterday)]||0)+'本';const days=Object.entries(data.days).filter(([day,count])=>count>0).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,31);document.getElementById('history').innerHTML=days.length?days.map(([day,count])=>`<div class="history-row"><span>${day}</span><strong>${count}本</strong></div>`).join(''):'<p class="muted">まだ記録がないで！</p>';save();}
+document.getElementById('smoke').addEventListener('click',()=>{rollover();if(data.remaining<=0)return;const day=localDay();data.remaining--;data.days[day]=(data.days[day]||0)+1;data.lastAction={day,month:data.month};display();});
+document.getElementById('undo').addEventListener('click',()=>{rollover();const a=data.lastAction;if(!a||a.month!==data.month||!data.days[a.day])return;data.days[a.day]--;if(!data.days[a.day])delete data.days[a.day];data.remaining=Math.min(MAX,data.remaining+1);data.lastAction=null;display();});
+display();document.addEventListener('visibilitychange',()=>{if(!document.hidden)display();});
 </script>
-
 </body>
 </html>
