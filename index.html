@@ -1,40 +1,53 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f4f6f8">
-<title>禁煙NISA</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f4f6f8"><title>禁煙NISA Ver.3</title>
 <style>
-*{box-sizing:border-box}body{margin:0;padding:30px 15px;background:#f4f6f8;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;text-align:center}.card{background:white;border-radius:20px;padding:26px 15px;max-width:400px;margin:auto;box-shadow:0 4px 15px #0001}h1{font-size:26px;margin:0 0 20px}.number{font-size:65px;font-weight:700;margin:10px 0}.money{font-size:35px;color:#16834a;font-weight:700;margin:10px 0 16px}button{width:100%;padding:19px;margin-top:14px;font-size:19px;border:0;border-radius:12px;cursor:pointer}.smoke{background:#222;color:#fff}.undo{background:#ddd}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.stat{background:#f4f6f8;border-radius:12px;padding:12px 5px}.stat strong{display:block;font-size:27px;margin-top:4px}.muted{font-size:13px;color:#666}.history{text-align:left;margin-top:24px}.history h2{font-size:17px}.history-row{display:flex;justify-content:space-between;padding:11px 4px;border-bottom:1px solid #eee;font-size:15px}.note{font-size:12px;color:#777;line-height:1.6;margin-top:15px}
-</style>
-</head>
-<body>
-<main class="card">
-<h1>🚬 禁煙NISA 📈</h1>
-<p>今月の残り本数</p><div class="number" id="remaining">900</div>
-<p>NISA積立予定額</p><div class="money" id="money">27,000円</div>
-<div class="stats"><div class="stat"><span class="muted">今日の本数</span><strong id="today">0本</strong></div><div class="stat"><span class="muted">昨日の本数</span><strong id="yesterday">0本</strong></div></div>
-<button class="smoke" id="smoke">吸う前にタップ −1本</button>
-<button class="undo" id="undo">↩ 1本取り消し</button>
-<section class="history"><h2>📅 日別履歴</h2><div id="history"></div></section>
-<p class="note">履歴はこの端末内に保存されます。端末データを消すと失われる場合があります。</p>
-</main>
+*{box-sizing:border-box}body{margin:0;padding:24px 14px;background:#f4f6f8;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif}.card{max-width:460px;margin:auto;background:white;border-radius:22px;padding:26px 20px;box-shadow:0 4px 20px #0001}h1{text-align:center;font-size:25px}h2{font-size:19px;margin-top:28px}.center{text-align:center}.number{font-size:72px;font-weight:750;margin:8px}.money{font-size:36px;color:#16834a;font-weight:700;margin:10px}button,.link{display:block;width:100%;padding:16px;margin-top:12px;border:0;border-radius:12px;font-size:17px;cursor:pointer;background:#edf0f2;color:#222;text-align:center;text-decoration:none}.primary{background:#222;color:white}.green{background:#16834a;color:white}button:disabled{opacity:.4;cursor:default}input{width:100%;padding:12px;border:1px solid #b9c2c9;border-radius:8px;font-size:17px;margin:8px 0 14px}label{display:block;margin-top:12px}.muted{font-size:13px;color:#647078;line-height:1.8}.row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.row button{width:auto;margin:0;padding:6px 12px;font-size:14px}.summary{background:#f4f6f8;padding:14px;border-radius:12px;line-height:1.9}#status{font-size:14px;line-height:1.7;padding:10px 0;color:#166b41}#status.error{color:#b3261e}[hidden]{display:none!important}a{color:#17674b}details{margin-top:22px}summary{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #39a77b;outline-offset:3px}
+</style></head><body><main class="card">
+<section id="home"><h1>🚬 禁煙NISA 📈</h1><div class="center"><p id="currentMonth" class="muted"></p><p>今月の残り本数 <span class="muted">／900本</span></p><div class="number" id="remaining">—</div><p>NISA積立予定額</p><div class="money" id="money">—</div><p class="muted">残り本数 × 30円</p></div><button id="smoke" class="primary">吸う前にタップ −1本</button><button id="undo">↩ 直前の操作を取り消す</button><a class="link" href="#stats">📊 統計・過去の記録</a><p class="muted center">毎月900本で計算。月が変わると新しい月を表示します。<br>積立予定額の表示のみで、自動投資は行いません。</p></section>
+<section id="stats" hidden><a href="#home">← ホームに戻る</a><h1>📊 喫煙の記録</h1><label for="month">表示する月</label><input id="month" type="month"><div id="monthlySummary" class="summary"></div><h2>日別の本数</h2><div id="days"></div><h2>過去の日付を登録・編集</h2><p class="muted">選んだ日の合計本数を入力します。保存前との差分を、その月の残り本数に反映します。0本で記録を削除できます。</p><label for="date">日付</label><input id="date" type="date"><label for="count">その日の合計本数</label><input id="count" type="number" min="0" max="100000" step="1" inputmode="numeric"><p id="editHint" class="muted"></p><button id="saveDay" class="green">この日の本数を保存</button><h2>月別の本数</h2><div id="months"></div>
+<details><summary>バックアップ・復元</summary><p class="muted">記録はこのブラウザに保存されます。別の端末には自動同期しません。定期的にバックアップしてください。</p><button id="backup">現在の記録をダウンロード</button><button id="original">更新前の自動バックアップをダウンロード</button><button id="beforeRestore">復元前の記録をダウンロード</button><label for="restore">バックアップから復元</label><input type="file" id="restore" accept=".json,application/json"><p class="muted">復元は現在の記録との置き換えです。確認後、置き換え前の記録も自動で保存します。日付不明分は今日の記録に加算しません。</p></details></section><div id="status" role="status" aria-live="polite"></div><p class="muted center">Ver.3 · 記録を大切に</p></main>
 <script>
-const MAX=900,PRICE=30;
-const KEY='kinen-nisa-v2';
-const legacy=localStorage.getItem('remaining');
-const localDay=(date=new Date())=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-const monthKey=(date=new Date())=>localDay(date).slice(0,7);
-let data;
-try{data=JSON.parse(localStorage.getItem(KEY));}catch(e){data=null;}
-if(!data||typeof data!=='object'||!data.days){data={month:monthKey(),remaining:legacy===null?MAX:Math.max(0,Math.min(MAX,Number(legacy)||0)),days:{},lastAction:null};}
-function rollover(){const current=monthKey();if(data.month!==current){data.month=current;data.remaining=MAX;data.lastAction=null;}}
-function save(){localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem('remaining',String(data.remaining));}
-function display(){rollover();const today=localDay();const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);document.getElementById('remaining').textContent=data.remaining;document.getElementById('money').textContent=(data.remaining*PRICE).toLocaleString('ja-JP')+'円';document.getElementById('today').textContent=(data.days[today]||0)+'本';document.getElementById('yesterday').textContent=(data.days[localDay(yesterday)]||0)+'本';const days=Object.entries(data.days).filter(([day,count])=>count>0).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,31);document.getElementById('history').innerHTML=days.length?days.map(([day,count])=>`<div class="history-row"><span>${day}</span><strong>${count}本</strong></div>`).join(''):'<p class="muted">まだ記録がないで！</p>';save();}
-document.getElementById('smoke').addEventListener('click',()=>{rollover();if(data.remaining<=0)return;const day=localDay();data.remaining--;data.days[day]=(data.days[day]||0)+1;data.lastAction={day,month:data.month};display();});
-document.getElementById('undo').addEventListener('click',()=>{rollover();const a=data.lastAction;if(!a||a.month!==data.month||!data.days[a.day])return;data.days[a.day]--;if(!data.days[a.day])delete data.days[a.day];data.remaining=Math.min(MAX,data.remaining+1);data.lastAction=null;display();});
-display();document.addEventListener('visibilitychange',()=>{if(!document.hidden)display();});
-</script>
-</body>
-</html>
+'use strict';
+const KEY='kinen-nisa-v3', OLD='kinen-nisa-v2', ORIGINAL='kinen-nisa-v3-before-migration', BEFORE='kinen-nisa-v3-before-restore', MAX=900, PRICE=30;
+const $=id=>document.getElementById(id);
+const localDay=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const currentMonth=()=>localDay().slice(0,7);
+const monthValid=m=>typeof m==='string'&&/^\d{4}-(0[1-9]|1[0-2])$/.test(m)&&Number(m.slice(0,4))>=1;
+function dateValid(s){if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+'T12:00:00');return !isNaN(d)&&localDay(d)===s;}
+const integer=n=>Number.isSafeInteger(n)&&n>=0&&n<=100000;
+function cleanDays(days){if(!days||typeof days!=='object'||Array.isArray(days))throw Error('日別履歴の形式が不正です。元の記録は変更していません。');const out={};for(const [d,n]of Object.entries(days)){if(!dateValid(d)||!integer(n))throw Error('日付または本数が不正です。元の記録は変更していません。');out[d]=n;}return out;}
+const sum=(s,m)=>Object.entries(s.days).reduce((a,[d,n])=>a+(d.slice(0,7)===m?n:0),0);
+function validate(s){if(!s||s.version!==3)throw Error('Ver.3の形式ではありません。');const days=cleanDays(s.days);if(!s.adjustments||typeof s.adjustments!=='object'||Array.isArray(s.adjustments))throw Error('月別情報の形式が不正です。');const adjustments={};for(const [m,n]of Object.entries(s.adjustments)){if(!monthValid(m)||!Number.isSafeInteger(n)||Math.abs(n)>10000000)throw Error('月別情報が不正です。');adjustments[m]=n;}return{version:3,days,adjustments,lastAction:null};}
+function migrate(v2,legacy,now=currentMonth()){
+ let days={},adjustments={},action=null;
+ if(v2!==null){const s=JSON.parse(v2);if(!s||!monthValid(s.month)||!integer(s.remaining)||s.remaining>MAX)throw Error('V2の残り本数・年月を読み取れません。');days=cleanDays(s.days);adjustments[s.month]=MAX-s.remaining-sum({days},s.month);const a=s.lastAction;if(a&&a.month===now&&a.month===s.month&&dateValid(a.day)&&a.day.slice(0,7)===a.month&&days[a.day]>0)action={day:a.day,before:days[a.day]-1,after:days[a.day],month:a.month};
+ }else if(legacy!==null){if(!/^\d+$/.test(legacy)||Number(legacy)>MAX)throw Error('旧残り本数を読み取れません。');adjustments[now]=MAX-Number(legacy);}
+ return{version:3,days,adjustments,lastAction:action};
+}
+let data=null;
+function message(s,error=false){$('status').textContent=s;$('status').className=error?'error':'';}
+function total(s,m){return sum(s,m)+(s.adjustments[m]||0);}
+function remaining(s,m){return Math.max(0,Math.min(MAX,MAX-total(s,m)));}
+function load(){const raw=localStorage.getItem(KEY);if(raw!==null){data=validate(JSON.parse(raw));const a=JSON.parse(raw).lastAction;if(a&&dateValid(a.day)&&a.month===a.day.slice(0,7)&&integer(a.before)&&integer(a.after)&&data.days[a.day]===a.after)data.lastAction=a;}else{const old=localStorage.getItem(OLD),legacy=localStorage.getItem('remaining');const next=migrate(old,legacy);if(localStorage.getItem(ORIGINAL)===null)localStorage.setItem(ORIGINAL,JSON.stringify({format:'kinen-nisa-backup',version:1,createdAt:new Date().toISOString(),v2:old,remaining:legacy,migrationMonth:currentMonth()}));localStorage.setItem(KEY,JSON.stringify(next));data=next;}}
+function commit(next){localStorage.setItem(KEY,JSON.stringify(next));data=next;render();fillCount();$('saveDay').disabled=false;}
+function changeDay(day,n){const next=structuredClone(data),before=next.days[day]||0;if(before===n){message('本数は変更されていません。');return;}if(n)next.days[day]=n;else delete next.days[day];next.lastAction={day,before,after:n,month:day.slice(0,7)};commit(next);message(`${day} を ${n}本に保存しました。`);}
+function safe(fn){return(...args)=>{try{fn(...args);}catch(e){message('保存・読み込みができません：'+e.message,true);}};}
+function row(parent,label,value,edit){const el=document.createElement('div');el.className='row';const l=document.createElement('span');l.textContent=label;const r=document.createElement(edit?'button':'strong');r.textContent=value;if(edit)r.onclick=edit;el.append(l,r);parent.append(el);}
+function render(){const m=currentMonth();$('date').max=localDay();$('currentMonth').textContent=m.replace('-','年 ')+'月';$('remaining').textContent=remaining(data,m);$('money').textContent=(remaining(data,m)*PRICE).toLocaleString('ja-JP')+'円';$('smoke').disabled=remaining(data,m)<=0;$('undo').disabled=!data.lastAction;
+ const selected=$('month').value||m,known=sum(data,selected),adjust=data.adjustments[selected]||0;$('monthlySummary').textContent=`${selected}：日別記録 ${known}本 ／ 残り ${remaining(data,selected)}本`+(adjust>0?`（日付不明 ${adjust}本を含む）`:adjust<0?`（V2引き継ぎ調整 ${adjust}本）`:'');$('days').replaceChildren();const entries=Object.entries(data.days).filter(([d])=>d.slice(0,7)===selected).sort(([a],[b])=>b.localeCompare(a));for(const[d,n]of entries)row($('days'),d,n+'本 · 編集',()=>{$('date').value=d;fillCount();$('date').scrollIntoView({behavior:'smooth',block:'center'});});if(!entries.length)$('days').textContent='この月の日別記録はまだありません。';
+ $('months').replaceChildren();const months=[...new Set([m,...Object.keys(data.adjustments),...Object.keys(data.days).map(d=>d.slice(0,7))])].sort().reverse();for(const month of months){const a=data.adjustments[month]||0;row($('months'),month,`${sum(data,month)}本`+(a>0?` + 日付不明${a}本`:a<0?`（調整${a}本）`:''));}$('beforeRestore').disabled=localStorage.getItem(BEFORE)===null;$('original').disabled=localStorage.getItem(ORIGINAL)===null;
+}
+function fillCount(){if(!data)return;const d=$('date').value;$('count').value=data.days[d]||0;$('editHint').textContent='現在の記録：'+(data.days[d]||0)+'本（入力した合計に置き換えます）';}
+function route(){const stats=location.hash==='#stats';$('home').hidden=stats;$('stats').hidden=!stats;}
+function download(obj,name){const url=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+$('smoke').onclick=safe(()=>{load();if(remaining(data,currentMonth())<=0)return;const d=localDay();changeDay(d,(data.days[d]||0)+1);});
+$('undo').onclick=safe(()=>{load();const a=data.lastAction;if(!a)return;if((data.days[a.day]||0)!==a.after)throw Error('記録が変更されたため取り消せません。');const next=structuredClone(data);if(a.before)next.days[a.day]=a.before;else delete next.days[a.day];next.lastAction=null;commit(next);message(`${a.day} の直前の操作を取り消しました。`);});
+$('saveDay').onclick=safe(()=>{const d=$('date').value,n=Number($('count').value);if(!dateValid(d)||d>localDay())throw Error('今日以前の日付を選んでください。');if($('count').value.trim()===''||!integer(n))throw Error('本数は0〜100000の整数で入力してください。');load();changeDay(d,n);});
+$('month').onchange=()=>{if(data)render();};$('date').onchange=fillCount;
+$('backup').onclick=safe(()=>{load();download({format:'kinen-nisa-backup',version:1,createdAt:new Date().toISOString(),data},'kinen-nisa-'+localDay()+'.json');message('バックアップをダウンロードしました。');});
+$('original').onclick=safe(()=>download(JSON.parse(localStorage.getItem(ORIGINAL)),'kinen-nisa-v2-original.json'));
+$('beforeRestore').onclick=safe(()=>download(JSON.parse(localStorage.getItem(BEFORE)),'kinen-nisa-before-restore.json'));
+$('restore').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw Error('ファイルが大きすぎます。');const b=JSON.parse(await f.text());let next;if(b.format==='kinen-nisa-backup'&&b.version===1&&b.data)next=validate(b.data);else if(b.format==='kinen-nisa-backup'&&b.version===1&&Object.hasOwn(b,'v2')){if(!monthValid(b.migrationMonth))throw Error('バックアップの年月が不正です。');next=migrate(b.v2,b.remaining,b.migrationMonth);}else if(b.version===3)next=validate(b);else if(b.days&&b.month)next=migrate(JSON.stringify(b),null);else throw Error('対応するバックアップではありません。');if(!confirm(`バックアップの${Object.keys(next.days).length}日分の記録で、現在の記録を置き換えます。復元しますか？`))return;localStorage.setItem(BEFORE,JSON.stringify({format:'kinen-nisa-backup',version:1,createdAt:new Date().toISOString(),data:data||null,rawV3:localStorage.getItem(KEY),v2:localStorage.getItem(OLD),remaining:localStorage.getItem('remaining')}));commit(next);message('復元しました。');}catch(err){message('復元できません：'+err.message,true);}finally{e.target.value='';}};
+window.addEventListener('hashchange',route);window.addEventListener('storage',safe(()=>{load();render();message('別の画面で変更された記録を読み込みました。');}));document.addEventListener('visibilitychange',safe(()=>{if(!document.hidden){load();render();}}));setInterval(safe(()=>{if(data&&!document.hidden)render();}),60000);
+$('month').value=currentMonth();$('date').value=localDay();$('date').max=localDay();route();try{load();render();fillCount();}catch(e){$('smoke').disabled=true;$('undo').disabled=true;$('saveDay').disabled=true;message('元の記録を保護するため自動移行を停止しました：'+e.message,true);}
+</script></body></html>
