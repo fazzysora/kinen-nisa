@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>禁煙NISA</title>
+
+<style>
+body {
+  font-family: -apple-system, sans-serif;
+  background: #f4f6f8;
+  text-align: center;
+  padding: 30px 15px;
+  color: #222;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px 15px;
+  max-width: 400px;
+  margin: auto;
+  box-shadow: 0 4px 15px #0001;
+}
+
+h1 { font-size: 26px; }
+
+.number {
+  font-size: 65px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.money {
+  font-size: 35px;
+  color: #16834a;
+  font-weight: bold;
+}
+
+button {
+  width: 100%;
+  padding: 20px;
+  margin-top: 15px;
+  font-size: 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.smoke {
+  background: #222;
+  color: white;
+}
+
+.undo {
+  background: #ddd;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🚬 禁煙NISA 📈</h1>
+
+<p>今月の残り本数</p>
+<div class="number" id="remaining">900</div>
+
+<p>NISA積立予定額</p>
+<div class="money" id="money">27,000円</div>
+
+<button class="smoke" onclick="smoke()">
+吸う前にタップ −1本
+</button>
+
+<button class="undo" onclick="undo()">
+↩ 1本取り消し
+</button>
+
+</div>
+
+<script>
+const MAX = 900;
+const PRICE = 30;
+
+let remaining = Number(localStorage.getItem("remaining"));
+
+if (localStorage.getItem("remaining") === null) {
+  remaining = MAX;
+}
+
+function update() {
+  document.getElementById("remaining").textContent = remaining;
+  document.getElementById("money").textContent =
+    (remaining * PRICE).toLocaleString() + "円";
+
+  localStorage.setItem("remaining", remaining);
+}
+
+function smoke() {
+  if (remaining > 0) {
+    remaining--;
+    update();
+  }
+}
+
+function undo() {
+  if (remaining < MAX) {
+    remaining++;
+    update();
+  }
+}
+
+update();
+</script>
+
+</body>
+</html>
